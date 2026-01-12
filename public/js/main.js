@@ -162,32 +162,32 @@ function setupCheckoutModalEvents() {
     if (closeCheckoutBtn) {
         closeCheckoutBtn.addEventListener('click', closeCheckoutModal);
     }
-    
+
     // Overlay do checkout
     const checkoutOverlay = document.getElementById('checkoutModalOverlay');
     if (checkoutOverlay) {
         checkoutOverlay.addEventListener('click', closeCheckoutModal);
     }
-    
+
     // Botão de finalizar compra do carrinho
-const checkoutBtn = document.querySelector('.checkout-btn');
-if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Verifica se há itens no carrinho
-        if (Cart && Cart.cartItems && Cart.cartItems.length > 0) {
-            // Abre o modal de checkout
-            openCheckoutModal();
-        } else {
-            showNotification('Adicione itens ao carrinho antes de finalizar a compra.', 3000, 'warning');
-        }
-    });
-}
-    
+    const checkoutBtn = document.querySelector('.checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Verifica se há itens no carrinho
+            if (Cart && Cart.cartItems && Cart.cartItems.length > 0) {
+                // Abre o modal de checkout
+                openCheckoutModal();
+            } else {
+                showNotification('Adicione itens ao carrinho antes de finalizar a compra.', 3000, 'warning');
+            }
+        });
+    }
+
     // Tecla ESC para fechar
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             const checkoutModal = document.getElementById('checkoutModal');
             if (checkoutModal && checkoutModal.classList.contains('active')) {
@@ -533,36 +533,28 @@ function showNotification(message, duration = 3000, type = 'info', important = f
 }
 
 function getCurrentDayName() {
-    // SIMULAÇÃO: Sempre retorna "quarta" para teste
-    // Para voltar ao normal, descomente as linhas abaixo e apague o return "quarta";
 
-    // const days = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"];
-    // const date = new Date();
-    // const dayName = days[date.getDay()];
-    // console.log(`📅 Dia atual: ${dayName}`);
-    // return dayName;
+    const days = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"];
+    const date = new Date();
+    const dayName = days[date.getDay()];
 
-    console.log('📅 [SIMULAÇÃO] Hoje é QUARTA-FEIRA');
-    return "quarta";
+    console.log(`📅 Dia atual: ${dayName}`);
+    return dayName;
 }
 
 function getTodayIndex() {
-    // SIMULAÇÃO: Sempre retorna índice da quarta (0)
-    // Para voltar ao normal, descomente as linhas abaixo:
+    const hoje = new Date();
+    const diaSemana = hoje.getDay();
 
-    // const hoje = new Date();
-    // const diaSemana = hoje.getDay();
-    // const diaParaIndice = {
-    //     3: 0, // quarta
-    //     4: 1, // quinta
-    //     5: 2, // sexta
-    //     6: 3  // sábado
-    // };
-    // return diaParaIndice[diaSemana] !== undefined ? diaParaIndice[diaSemana] : -1;
+    const diaParaIndice = {
+        3: 0, // quarta
+        4: 1, // quinta
+        5: 2, // sexta
+        6: 3  // sábado
+    };
 
-    return 0; // Índice da quarta-feira
+    return diaParaIndice[diaSemana] !== undefined ? diaParaIndice[diaSemana] : -1;
 }
-
 function getDayNameInPortuguese(dayIndex) {
     const days = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
     return days[dayIndex];
