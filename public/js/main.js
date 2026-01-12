@@ -273,6 +273,10 @@ function closeMobileMenu() {
 }
 
 function navigateToPage(page) {
+    // Desmonta o app React se estiver saindo da página de feedbacks
+    if (currentPage === "feedbacks" && window.unmountFeedbacksApp) {
+        window.unmountFeedbacksApp();
+    }
     // Adiciona transição de saída na página atual
     const currentActivePage = document.querySelector('.page.active');
     if (currentActivePage) {
@@ -308,6 +312,11 @@ function navigateToPage(page) {
 
             // Inicializa componentes da página
             initializePageComponents(page);
+
+            // Se a página de feedbacks for ativada, renderize o app React
+            if (page === "feedbacks" && window.renderFeedbacksApp) {
+                window.renderFeedbacksApp();
+            }
 
             // Scroll para o topo
             window.scrollTo({ top: 0, behavior: 'smooth' });
