@@ -35,11 +35,21 @@
     font-size: 0.9rem;
 }
 
+.cardapio-hint {
+    text-align: center;
+    font-style: italic;
+    font-size: 1rem;
+    color: #5a7a3a; /* verde um pouco mais escuro que o #eaffd1 do fundo */
+    margin-top: -1rem;
+    margin-bottom: 1.2rem;
+    opacity: 0.85;
+}
+
 /* ============================================
    CARDÁPIO SEMANAL - NOVO DESIGN DE LISTA
    ============================================ */
 .cardapio-container {
-    max-width: 600px; /* Limitar a largura para simular o card */
+    width: clamp(300px, 90%, 600px); /* Mobile: ocupa quase tudo, limitado a 600px */
     margin: 0 auto;
     background: #eaffd1; /* Cor de fundo verde claro */
     border-radius: 15px; /* Borda arredondada */
@@ -231,6 +241,7 @@
     }
     
     .cardapio-container {
+        width: auto; /* Deixa as margens laterais controlarem a largura */
         padding: 1.2rem;
         margin-left: 10px;
         margin-right: 10px;
@@ -281,4 +292,50 @@
     display: flex;
     align-items: center;
     padding: 0.75rem 0;
+}
+/* Tablet: 769px – 1023px */
+@media (min-width: 769px) {
+    .cardapio-container {
+        width: 90%;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+}
+
+/* Desktop: ≥ 1024px */
+@media (min-width: 1024px) {
+    .cardapio-container {
+        width: 95%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem;
+    }
+
+    .produto-nome,
+    .produto-preco {
+        font-size: 1.3rem;
+    }
+
+    .categoria-produtos h4 {
+        font-size: 1.8rem;
+    }
+
+    .produto-imagem-container {
+        width: 75px;
+        height: 75px;
+    }
+
+    .produto-item {
+        padding: 0.9rem 0;
+    }
+
+    .dia-nome {
+        font-size: 1.4rem;
+    }
+
+    .nav-btn {
+        width: 38px;
+        height: 38px;
+    }
 }
