@@ -1,8 +1,14 @@
 class ApiClient {
     constructor() {
         // Detecta se está rodando via Netlify Dev (porta 8888) ou servidor direto
-        const isNetlify = window.location.port === '8888' || window.location.hostname.includes('netlify.app');
-        this.baseUrl = isNetlify ? '/.netlify/functions' : '/api';
+        const isNetlify = window.location.port === '8888' || window.location.hostname.includes('netlify.app') || window.location.hostname === 'localhost';
+        
+        let origin = '';
+        if (window.location.hostname === 'localhost' && window.location.port !== '8888') {
+            origin = window.location.protocol + '//' + window.location.hostname + ':8888';
+        }
+        
+        this.baseUrl = isNetlify ? origin + '/.netlify/functions' : '/api';
         console.log('🌐 API Client inicializado para:', this.baseUrl);
     }
 

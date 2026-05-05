@@ -289,11 +289,15 @@ class MenuInstance {
         console.log(`🔍 Filtrando produtos para o dia: ${day}`);
         
         const produtosFiltrados = this.allProducts.filter(produto => {
+            // Verifica se o produto está marcado como disponível hoje pelo dono
+            const isAvailableToday = produto.is_available !== false;
+            
             const temDia = produto.available_days && (
                 produto.available_days.includes(day) || 
                 produto.available_days.includes(day.toLowerCase())
             );
-            return temDia;
+            
+            return temDia && isAvailableToday;
         });
 
         return produtosFiltrados;

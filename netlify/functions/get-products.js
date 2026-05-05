@@ -48,6 +48,7 @@ exports.handler = async (event, context) => {
             categoria: product.category,
             imagem: product.image_url || product.image || '/img/logos/Logo.png', 
             dias_disponiveis: product.available_days || [],
+            is_available: product.is_available !== undefined ? product.is_available : true,
             name: product.name,
             description: product.description,
             price: product.price,

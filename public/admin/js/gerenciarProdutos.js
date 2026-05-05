@@ -148,11 +148,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 }</div>
     </td>
     <td data-label="Categoria"><span class="category-badge">${p.categoria || "-"}</span></td>
-    <td data-label="Preço"><span class="price-tag">R$ ${
-                    price.toFixed(2).replace(".", ",")
-                }</span></td>
-    <td data-label="Disponibilidade"><div class="days-list">${diasHtml}</div></td>
-    <td data-label="Ações" style="text-align:right; white-space: nowrap;">
+	    <td data-label="Preço"><span class="price-tag">R$ ${
+	                    price.toFixed(2).replace(".", ",")
+	                }</span></td>
+	    <td data-label="Disponibilidade"><div class="days-list">${diasHtml}</div></td>
+	    <td data-label="Disponível Hoje">
+	        <label class="switch">
+	            <input type="checkbox" class="toggle-availability" data-id="${p.id}" ${p.is_available ? 'checked' : ''}>
+	            <span class="slider"></span>
+	        </label>
+	        <span class="availability-status ${p.is_available ? 'status-on' : 'status-off'}">
+	            ${p.is_available ? 'Sim' : 'Não'}
+	        </span>
+	    </td>
+	    <td data-label="Ações" style="text-align:right; white-space: nowrap;">
         <button class="btn-edit" data-id="${p.id}" title="Editar produto">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -173,10 +182,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 row.querySelector(".btn-edit").onclick = () =>
                     this.openEdit(p.id);
-                row.querySelector(".btn-delete").onclick = () =>
-                    this.deleteProduct(p.id);
-            });
-        }
+	                row.querySelector(".btn-delete").onclick = () =>
+	                    this.deleteProduct(p.id);
+	                
+	                const toggle = row.querySelector(".toggle-availability");
+	                toggle.onchange = (e) => this.toggleAvailability(p.id, e.target.checked);
+	            });
+	        }
+
+	        async toggleAvailability(productId, isAvailable) {
+	            const product = this.products.find(p => p.id === productId);
+	            if (!product) return;
+
+	            try {
+	                const res = await fetch("/.netlify/functions/update-product", {
+	                    method: "POST",
+	                    headers: { "Content-Type": "application/json" },
+	                    body: JSON.stringify({
+	                        id: product.id,
+	                        nome: product.nome,
+	                        preco: product.preco,
+	                        descricao: product.descricao,
+	                        categoria: product.categoria,
+	                        dias_disponiveis: product.dias_disponiveis,
+	                        is_available: isAvailable
+	                    })
+	                });
+
+	                const data = await res.json();
+	                if (!res.ok || !data.success) {
+	                    throw new Error(data.message || "Erro ao atualizar disponibilidade");
+	                }
+
+	                product.is_available = isAvailable;
+	                this.renderProducts();
+	                
+	                if (window.showNotification) {
+	                    window.showNotification(`Produto ${isAvailable ? 'ativado' : 'desativado'} com sucesso!`, 2000, 'success');
+	                }
+	            } catch (e) {
+	                alert("Erro: " + e.message);
+	                this.renderProducts(); // Reverte visualmente
+	            }
+	        }
 
         openEdit(productId) {
             const product = this.products.find((p) => p.id === productId);

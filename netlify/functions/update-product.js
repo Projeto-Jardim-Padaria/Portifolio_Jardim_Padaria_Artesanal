@@ -30,7 +30,7 @@ exports.handler = async (event) => {
     try {
         const supabase = getSupabase();
         const body = JSON.parse(event.body);
-        const { id, nome, descricao, preco, categoria, dias_disponiveis, imagem } = body;
+        const { id, nome, descricao, preco, categoria, dias_disponiveis, imagem, is_available } = body;
 
         if (!id) {
             return { 
@@ -65,6 +65,7 @@ exports.handler = async (event) => {
             price: parseFloat(preco),
             category: categoria,
             available_days: dias_disponiveis || [],
+            is_available: is_available !== undefined ? is_available : true,
             updated_at: new Date().toISOString()
         };
 

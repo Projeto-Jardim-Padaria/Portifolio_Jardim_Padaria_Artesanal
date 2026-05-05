@@ -1,0 +1,1 @@
+Deixamos o arquivo .env para que vocês consigam visualizar o site funcionando ao rodar no localhost, mas sabemos que os dados do .env, não deviria ser exposto para segurança do sistema. Tenham cuidado, não deixem que vazem esse arquivo e as informações dentro dele.

@@ -46,7 +46,8 @@ exports.handler = async (event, context) => {
                 price,
                 category,
                 available_days,
-                image_url // Agora salvando a URL da imagem
+                image_url, // Agora salvando a URL da imagem
+                is_available: true
             }])
             .select();
 

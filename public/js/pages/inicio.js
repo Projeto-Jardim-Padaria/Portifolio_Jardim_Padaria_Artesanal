@@ -115,12 +115,13 @@ const InicioPage = {
                 return response.products || [];
             }
             
-            // Fallback: busca direto do Supabase
-            console.log('Tentando busca direta do Supabase...');
-            const { data, error } = await window.supabase
-                .from('products')
-                .select('*')
-                .contains('available_days', [day]);
+	            // Fallback: busca direto do Supabase
+	            console.log('Tentando busca direta do Supabase...');
+	            const { data, error } = await window.supabase
+	                .from('products')
+	                .select('*')
+	                .contains('available_days', [day])
+	                .neq('is_available', false);
             
             if (error) {
                 console.error('Erro do Supabase:', error);

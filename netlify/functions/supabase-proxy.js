@@ -8,12 +8,12 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Tenta obter das variáveis de ambiente
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 const siteUrl = process.env.SITE_URL || 'https://jardim-padaria.netlify.app';
 
 // Detecta ambiente
-const isNetlify = process.env.NETLIFY === 'true';
-const isLocalDev = process.env.NETLIFY_DEV === 'true';
+const isNetlify = process.env.NETLIFY === 'true' || process.env.NETLIFY_DEV === 'true';
+const isLocalDev = process.env.NETLIFY_DEV === 'true' || !process.env.NETLIFY;
 
 console.log('🚀 Inicializando Supabase Proxy');
 console.log('📊 Ambiente:', isLocalDev ? 'Desenvolvimento Local' : 'Produção Netlify');
@@ -234,6 +234,9 @@ async function handleGetProducts(event, headers) {
         let query = supabase
             .from('products')
             .select('*');
+        
+        // Sempre filtrar produtos que não estão disponíveis hoje para o frontend
+        query = query.neq('is_available', false);
         
         // Aplica filtro se especificado
         if (filterColumn === 'available_days' && filterValue) {
