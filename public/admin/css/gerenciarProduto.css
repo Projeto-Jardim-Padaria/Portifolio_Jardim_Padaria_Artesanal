@@ -300,8 +300,7 @@ tr:hover .btn-delete {
         }
     }
 }
-
-/* Switch de Disponibilidade de produto */
+/* Switch de Disponibilidade */
 .switch {
   position: relative;
   display: inline-block;

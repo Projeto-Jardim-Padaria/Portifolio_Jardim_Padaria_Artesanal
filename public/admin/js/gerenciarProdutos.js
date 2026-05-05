@@ -190,7 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	            });
 	        }
 
-            // funcao de ativar/desativar disponibilidade do produto
 	        async toggleAvailability(productId, isAvailable) {
 	            const product = this.products.find(p => p.id === productId);
 	            if (!product) return;

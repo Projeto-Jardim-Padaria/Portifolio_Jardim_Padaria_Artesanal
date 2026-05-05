@@ -104,7 +104,12 @@ class SupabaseQueryBuilder {
 async function initializeSupabase() {
     try {
         // URL base da API (Netlify Functions)
-        const API_BASE = window.location.origin + '/.netlify/functions/supabase-proxy';
+        // No Netlify Dev, a porta padrão é 8888. Se estivermos no localhost mas não na 8888, tentamos forçar a 8888 para as funções.
+        let origin = window.location.origin;
+        if (window.location.hostname === 'localhost' && window.location.port !== '8888') {
+            origin = window.location.protocol + '//' + window.location.hostname + ':8888';
+        }
+        const API_BASE = origin + '/.netlify/functions/supabase-proxy';
         
         console.log('🔗 Testando conexão com API...');
         
