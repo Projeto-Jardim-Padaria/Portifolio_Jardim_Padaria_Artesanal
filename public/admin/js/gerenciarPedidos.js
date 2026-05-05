@@ -167,8 +167,14 @@ class AdminPanel {
             }
         });
 
-        // Fechar modal ao clicar no overlay
+        // Fechar menus de status rápido ao clicar fora
         document.addEventListener('click', (e) => {
+            if (!e.target.closest('.quick-status-container')) {
+                document.querySelectorAll('.quick-status-menu.active').forEach(menu => {
+                    menu.classList.remove('active');
+                });
+            }
+
             if (e.target.classList.contains('admin-modal')) {
                 const modalId = e.target.id;
                 switch (modalId) {
@@ -1218,43 +1224,63 @@ class AdminPanel {
             row.classList.add('selected');
         }
 
-	        row.innerHTML = `
-	            <td data-label="Selecionar">
-	                <input type="checkbox" class="order-select" 
-	                       data-order-id="${orderId}"
-	                       ${isSelected ? 'checked' : ''}
-	                       onchange="window.AdminPanel.toggleOrderSelection('${orderId}', this.checked)">
-	            </td>
-	            <td data-label="ID Pedido">
-	                <a href="#" class="order-id-link" title="Ver detalhes do pedido" onclick="window.AdminPanel.openOrderDetails('${orderId}'); return false;">
-	                    <strong>${orderId}</strong>
-	                </a>
-	            </td>
-	            <td data-label="Cliente">
-	                <div class="customer-cell">
-	                    <strong>${order.client_name || 'N/A'}</strong>
-	                    ${order.client_phone ? `
-	                    <br><small class="phone-hint" title="${this.formatPhone(order.client_phone)}">
-	                        📞 ${this.formatPhone(order.client_phone)}
-	                    </small>` : ''}
-	                </div>
-	            </td>
-	            <td data-label="Telefone">
-	                <span class="phone-number" title="${order.client_phone || ''}">
-	                    ${this.formatPhone(order.client_phone)}
-	                </span>
-	            </td>
-	            <td data-label="Valor">
-	                <strong class="order-value">R$ ${total.toFixed(2)}</strong>
-	            </td>
-	            <td data-label="Status">
-	                <span class="status-badge status-${order.status || 'pendente'}">
-	                    ${this.getStatusText(order.status || 'pendente')}
-	                </span>
-	            </td>
-	            <td data-label="Entrega">
-	                ${deliveryOption === 'retirada' ?
-	                '<span class="delivery-type" title="Retirada na Loja"><i class="fas fa-store"></i> Retirada</span>' :
+        row.innerHTML = `
+            <td data-label="Selecionar">
+                <input type="checkbox" class="order-select" 
+                       data-order-id="${orderId}"
+                       ${isSelected ? 'checked' : ''}
+                       onchange="window.AdminPanel.toggleOrderSelection('${orderId}', this.checked)">
+            </td>
+            <td data-label="ID Pedido">
+                <a href="#" class="order-id-link" title="Ver detalhes do pedido" onclick="window.AdminPanel.openOrderDetails('${orderId}'); return false;">
+                    <strong>${orderId}</strong>
+                </a>
+            </td>
+            <td data-label="Cliente">
+                <div class="customer-cell">
+                    <strong>${order.client_name || 'N/A'}</strong>
+                    ${order.client_phone ? `
+                    <br><small class="phone-hint" title="${this.formatPhone(order.client_phone)}">
+                        📞 ${this.formatPhone(order.client_phone)}
+                    </small>` : ''}
+                </div>
+            </td>
+            <td data-label="Telefone">
+                <span class="phone-number" title="${order.client_phone || ''}">
+                    ${this.formatPhone(order.client_phone)}
+                </span>
+            </td>
+            <td data-label="Valor">
+                <strong class="order-value">R$ ${total.toFixed(2)}</strong>
+            </td>
+            <td data-label="Status">
+                <div class="quick-status-container">
+                    <span class="status-badge status-${order.status || 'pendente'}" 
+                          onclick="this.nextElementSibling.classList.toggle('active')" 
+                          style="cursor: pointer" 
+                          title="Clique para mudar o status rápido">
+                        ${this.getStatusText(order.status || 'pendente')}
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 4px; opacity: 0.7"></i>
+                    </span>
+                    <div class="quick-status-menu">
+                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'pendente')">
+                            <span class="status-dot status-pendente"></span> Pendente
+                        </div>
+                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'preparando')">
+                            <span class="status-dot status-preparando"></span> Preparando
+                        </div>
+                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'pronto')">
+                            <span class="status-dot status-pronto"></span> Pronto
+                        </div>
+                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'entregue')">
+                            <span class="status-dot status-entregue"></span> Entregue
+                        </div>
+                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'cancelado')">
+                            <span class="status-dot status-cancelado"></span> Cancelado
+                        </div>
+                    </div>
+                </div>
+            </td>a na Loja"><i class="fas fa-store"></i> Retirada</span>' :
 	                '<span class="delivery-type" title="Entrega em Domicílio"><i class="fas fa-motorcycle"></i> Entrega</span>'}
 	            </td>
 	            <td data-label="Pagamento">
@@ -1707,9 +1733,85 @@ class AdminPanel {
         }
     }
 
+    async quickUpdateStatus(orderId, newStatus) {
+        try {
+            this.showLoading(true);
+            const apiBase = window.location.origin;
+            const response = await fetch(`${apiBase}/.netlify/functions/update-order-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, status: newStatus })
+            });
+
+            const result = await response.json();
+            if (response.ok && result.success) {
+                this.showSuccess('✅ Status atualizado!');
+                this.updateOrderStatusLocally(orderId, newStatus);
+                this.updateStats();
+                this.updateCharts();
+                this.displayCurrentView();
+            } else {
+                throw new Error(result.message || 'Erro ao atualizar status');
+            }
+        } catch (error) {
+            console.error('❌ Erro:', error);
+            this.showError('Erro: ' + error.message);
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
     addModalStyles() {
         const style = document.createElement('style');
         style.textContent = `
+        /* Quick Status Styles */
+        .quick-status-container {
+            position: relative;
+            display: inline-block;
+        }
+        .quick-status-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 100;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border: 1px solid var(--border);
+            min-width: 150px;
+            margin-top: 5px;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+        .quick-status-menu.active {
+            display: block;
+        }
+        .quick-status-option {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--foreground);
+            transition: background 0.2s;
+        }
+        .quick-status-option:hover {
+            background: var(--accent-light);
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .status-dot.status-pendente { background: #E67E22; }
+        .status-dot.status-preparando { background: #1976D2; }
+        .status-dot.status-pronto { background: #2E7D32; }
+        .status-dot.status-entregue { background: #1B5E20; }
+        .status-dot.status-cancelado { background: #C62828; }
+
         .modal-content h2 {
             color: var(--primary);
             margin-bottom: 1.5rem;

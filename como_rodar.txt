@@ -3,6 +3,7 @@ criar arquivo .env com codigo da descricao do grupo
 cd *entre no repositorio da pasta*
 npm install (so faz isso uma vez)
 npm install -g netlify-cli (so faz isso uma vez)
+npm install -g npm@11.13.0 (para atualizar caso necessario)
 netlify dev
 
 Agora acesse o link: http://localhost:8888

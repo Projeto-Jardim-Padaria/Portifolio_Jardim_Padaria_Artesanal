@@ -48,6 +48,7 @@ class PagesLoader {
         }
     }
 
+    //removido o card visite nossa loja, pois a padaria é apenas delivery e não tem loja física
     getInicioContent() {
     return `
         <!-- Hero Section -->
