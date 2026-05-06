@@ -84,8 +84,7 @@ class PagesLoader {
                             </svg>
                         </div>
                         <div class="info-content">
-                            <h4>Aviso de Feirinhas</h4>
-                            <p>Participações divulgadas<br>em breve.</p>
+                            <div id="cardFeirinhas"></div>
                         </div>
                     </div>
                 </div>

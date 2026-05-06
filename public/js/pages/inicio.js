@@ -5,6 +5,7 @@ const InicioPage = {
         console.log('Inicializando página Início');
         await this.setupCarousel();
         await this.setupTodayProducts();
+        await this.setupFeirinhas(); //NOVO
         this.setupEventListeners();
     },
 
@@ -136,6 +137,41 @@ const InicioPage = {
         }
     },
 
+    async setupFeirinhas() {
+    console.log('Carregando avisos de feirinhas...');
+
+    const container = document.getElementById('cardFeirinhas');
+
+    if (!container) {
+        console.log('Container #cardFeirinhas não encontrado');
+        return;
+    }
+
+    try {
+        const res = await fetch("/.netlify/functions/get-avisos");
+        const data = await res.json();
+
+        if (!data.avisos || data.avisos.length === 0) {
+            container.innerHTML = `<p>Nenhuma feirinha cadastrada.</p>`;
+            return;
+        }
+
+        // pega o mais recente
+        const aviso = data.avisos[data.avisos.length - 1];
+
+        container.innerHTML = `
+            ${aviso.imagem || ""}
+            <h4>${aviso.titulo}</h4>
+            <p><strong>Data:</strong> ${aviso.data}</p>
+            <p><strong>Horário:</strong> ${aviso.horario}</p>
+            <p><strong>Local:</strong> ${aviso.local}</p>
+        `;
+
+    } catch (err) {
+        console.error("Erro ao carregar feirinhas:", err);
+        container.innerHTML = `<p>Erro ao carregar avisos.</p>`;
+    }
+},
     setupEventListeners() {
         // Adiciona event listener para os botões que levam ao menu
         // Usamos delegação de evento para capturar cliques em qualquer elemento com data-page="menu"
