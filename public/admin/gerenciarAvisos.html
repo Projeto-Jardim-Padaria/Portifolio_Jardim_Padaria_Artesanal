@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gerenciar Avisos</title>
+
+    <link rel="stylesheet" href="./css/admin-common.css">
+    <link rel="stylesheet" href="./css/gerenciarAvisos.css">
+</head>
+
+<body>
+
+    <header class="admin-header">
+        <div>
+            <h1>Gerenciar Avisos</h1>
+        </div>
+        <a href="inicioAdmin.html">⬅ Voltar</a>
+    </header>
+
+    <div class="admin-container">
+        <button id="addEventBtn">Novo Aviso</button>
+
+        <table border="1" width="100%">
+            <thead>
+                <tr>
+                    <th>Imagem</th>
+                    <th>Título</th>
+                    <th>Data</th>
+                    <th>Local</th>
+                    <th>Horário</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="eventsBody"></tbody>
+        </table>
+    </div>
+
+    <!-- MODAL -->
+    <div id="eventModal" style="display:none;">
+        <div style="background:#fff; padding:20px; max-width:400px; margin:auto;">
+
+            <h2>Novo Aviso</h2>
+
+            <form id="eventForm">
+
+                <input type="text" id="titulo" placeholder="Título" required><br><br>
+
+                <input type="date" id="data" required><br><br>
+
+                <input type="time" id="horario" required><br><br>
+
+                <input type="text" id="local" placeholder="Local" required><br><br>
+
+                <input type="file" id="imagem"><br><br>
+
+                <div id="preview"></div><br>
+
+               
+
+                <button type="button" id="removerImagemBtn" style="display:none;">
+                    Remover imagem
+                </button><br><br>
+
+                <button type="submit">Salvar</button>
+                <button type="button" id="cancelBtn">Cancelar</button>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="./js/gerenciarAvisos.js"></script>
+
+</body>
+
+</html>
