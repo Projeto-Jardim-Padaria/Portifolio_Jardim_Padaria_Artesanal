@@ -70,7 +70,7 @@ class PagesLoader {
                         </div>
                         <div class="info-content">
                             <h4>Horário de Funcionamento</h4>
-                            <p>Qua a Sex: 14h – 18h<br>Sáb: 10h – 15h</p>
+                            <p>Qua a Sex: 14h – 18h</p>
                         </div>
                     </div>
                     

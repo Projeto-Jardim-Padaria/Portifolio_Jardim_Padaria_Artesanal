@@ -1,0 +1,275 @@
+/* ============================================
+   FEIRINHAS CARDS - CARDS COM IMAGEM DE FUNDO
+   ============================================ */
+
+
+
+.feirinha-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Card SEM imagem - layout padrão */
+.feirinha-card:not(.feirinha-card-com-imagem) {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f5ee 100%);
+    border: 1px solid rgba(216, 166, 94, 0.2);
+    padding: 1.5rem;
+    min-height: auto;
+    justify-content: flex-start;
+}
+
+.feirinha-card:not(.feirinha-card-com-imagem) .feirinha-card-content {
+    background: transparent;
+    padding: 0;
+}
+
+/* Card COM imagem - container com posicionamento relativo */
+.feirinha-card-com-imagem {
+    background: #000;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Overlay gradiente para melhorar legibilidade */
+.feirinha-card-com-imagem::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(28, 61, 45, 0.95) 0%, rgba(28, 61, 45, 0.7) 35%, rgba(28, 61, 45, 0.3) 70%, transparent 100%);
+    z-index: 1;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+}
+
+/* Imagem do card - moldagem automática */
+.feirinha-card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 0;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+/* Conteúdo do card */
+.feirinha-card-content {
+    position: relative;
+    z-index: 2;
+    padding: 1.5rem;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.feirinha-card-com-imagem .feirinha-card-content {
+    color: white;
+    background: transparent;
+    margin-top: auto;
+}
+
+.feirinha-card-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+    line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 0;
+}
+
+.feirinha-card:not(.feirinha-card-com-imagem) .feirinha-card-title {
+    color: #1C3D2D;
+}
+
+.feirinha-card-com-imagem .feirinha-card-title {
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.feirinha-info {
+    margin: 0.4rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 0;
+}
+
+.feirinha-card:not(.feirinha-card-com-imagem) .feirinha-info {
+    color: #555;
+}
+
+.feirinha-card-com-imagem .feirinha-info {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.feirinha-info strong {
+    margin-right: 0.25rem;
+    font-weight: 600;
+}
+
+.feirinha-card:not(.feirinha-card-com-imagem) .feirinha-info strong {
+    color: #1C3D2D;
+}
+
+.feirinha-card-com-imagem .feirinha-info strong {
+    color: #ffffff;
+}
+
+/* Hover effect */
+.feirinha-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(28, 61, 45, 0.25);
+}
+
+.feirinha-card:not(.feirinha-card-com-imagem):hover {
+    border-color: rgba(216, 166, 94, 0.4);
+}
+
+/* Desktop - Melhor espaçamento */
+@media (min-width: 1024px) {
+    .feirinhas-cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .feirinha-card {
+        min-height: 320px;
+    }
+
+    .feirinha-card-content {
+        padding: 2rem;
+    }
+
+    .feirinha-card-title {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .feirinha-info {
+        font-size: 0.95rem;
+        margin: 0.5rem 0;
+    }
+}
+
+/* Tablet - Espaçamento médio */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .feirinhas-cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .feirinha-card {
+        min-height: 280px;
+    }
+
+    .feirinha-card-content {
+        padding: 1.5rem;
+    }
+
+    .feirinha-card-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .feirinha-info {
+        font-size: 0.9rem;
+        margin: 0.4rem 0;
+    }
+}
+
+/* Mobile - Tablet pequeno */
+@media (max-width: 768px) {
+    .feirinhas-cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .feirinha-card {
+        min-height: 240px;
+    }
+
+    .feirinha-card:not(.feirinha-card-com-imagem) {
+        padding: 1.25rem;
+    }
+
+    .feirinha-card-content {
+        padding: 1.25rem;
+    }
+
+    .feirinha-card-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .feirinha-info {
+        font-size: 0.85rem;
+        margin: 0.3rem 0;
+    }
+}
+
+/* Mobile pequeno */
+@media (max-width: 480px) {
+    .feirinhas-cards-container {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .feirinha-card {
+        min-height: 220px;
+    }
+
+    .feirinha-card:not(.feirinha-card-com-imagem) {
+        padding: 1rem;
+    }
+
+    .feirinha-card-content {
+        padding: 1rem;
+    }
+
+    .feirinha-card-title {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .feirinha-info {
+        font-size: 0.8rem;
+        margin: 0.25rem 0;
+    }
+}
+
+/* Accessibility improvements */
+.feirinha-card:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Smooth transitions for all state changes */
+.feirinha-card-content {
+    transition: all 0.3s ease;
+}

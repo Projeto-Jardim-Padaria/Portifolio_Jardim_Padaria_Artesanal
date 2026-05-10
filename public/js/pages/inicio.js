@@ -138,40 +138,60 @@ const InicioPage = {
     },
 
     async setupFeirinhas() {
-    console.log('Carregando avisos de feirinhas...');
+        console.log('Carregando avisos de feirinhas...');
 
-    const container = document.getElementById('cardFeirinhas');
+        const container = document.getElementById('cardFeirinhas');
 
-    if (!container) {
-        console.log('Container #cardFeirinhas não encontrado');
-        return;
-    }
-
-    try {
-        const res = await fetch("/.netlify/functions/get-avisos");
-        const data = await res.json();
-
-        if (!data.avisos || data.avisos.length === 0) {
-            container.innerHTML = `<p>Nenhuma feirinha cadastrada.</p>`;
+        if (!container) {
+            console.log('Container #cardFeirinhas não encontrado');
             return;
         }
 
-        // pega o mais recente
-        const aviso = data.avisos[data.avisos.length - 1];
+        try {
+            const res = await fetch("/.netlify/functions/get-avisos");
+            const data = await res.json();
 
-        container.innerHTML = `
-            ${aviso.imagem || ""}
-            <h4>${aviso.titulo}</h4>
-            <p><strong>Data:</strong> ${aviso.data}</p>
-            <p><strong>Horário:</strong> ${aviso.horario}</p>
-            <p><strong>Local:</strong> ${aviso.local}</p>
-        `;
+            if (!data.avisos || data.avisos.length === 0) {
+                container.innerHTML = `
+                    <h4>Avisos de Feirinha</h4>
+                    <p style="color: #999; font-size: 0.9em;">Nenhuma feirinha cadastrada no momento.</p>
+                `;
+                return;
+            }
 
-    } catch (err) {
-        console.error("Erro ao carregar feirinhas:", err);
-        container.innerHTML = `<p>Erro ao carregar avisos.</p>`;
-    }
-},
+            // Ordena os avisos por data (mais próximos primeiro)
+            const avisos = data.avisos.sort((a, b) => new Date(a.data) - new Date(b.data));
+            
+            // Exibe todos os avisos
+            let html = `<h4>Avisos de Feirinha</h4>`;
+            
+            avisos.forEach((aviso, index) => {
+                const imagemHtml = aviso.imagem ? `<img src="${aviso.imagem}" style="width: 100%; margin-bottom: 10px; border-radius: 8px;">` : '';
+                html += `
+                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                        ${imagemHtml}
+                        <h5 style="margin: 5px 0; color: #1C3D2D;">${aviso.titulo}</h5>
+                        <p style="margin: 3px 0; font-size: 0.9em;"><strong>📅 Data:</strong> ${aviso.data}</p>
+                        <p style="margin: 3px 0; font-size: 0.9em;"><strong>🕐 Horário:</strong> ${aviso.horario}</p>
+                        <p style="margin: 3px 0; font-size: 0.9em;"><strong>📍 Local:</strong> ${aviso.local}</p>
+                    </div>
+                `;
+            });
+            
+            // Remove a última borda
+            html = html.replace(/border-bottom: 1px solid #eee;">(\s*)<\/div>\s*$/, '">$1</div>');
+            
+            container.innerHTML = html;
+            console.log(`✅ ${avisos.length} aviso(s) de feirinha carregado(s)`);
+
+        } catch (err) {
+            console.error("Erro ao carregar feirinhas:", err);
+            container.innerHTML = `
+                <h4>Avisos de Feirinha</h4>
+                <p style="color: #d9534f; font-size: 0.9em;">Erro ao carregar avisos. Tente novamente mais tarde.</p>
+            `;
+        }
+    },
     setupEventListeners() {
         // Adiciona event listener para os botões que levam ao menu
         // Usamos delegação de evento para capturar cliques em qualquer elemento com data-page="menu"
