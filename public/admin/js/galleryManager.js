@@ -36,7 +36,7 @@ class GalleryManager {
     /** Valida e adiciona novos arquivos à fila */
     addFiles(fileList) {
         const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-        const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+        const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
 
         for (const file of Array.from(fileList)) {
             if (!ALLOWED_TYPES.includes(file.type)) {
@@ -44,7 +44,7 @@ class GalleryManager {
                 continue;
             }
             if (file.size > MAX_SIZE) {
-                this._showError(`Arquivo muito grande: máximo 5 MB por imagem. (${file.name})`);
+                this._showError(`Arquivo muito grande: máximo 20 MB por imagem. (${file.name})`);
                 continue;
             }
             this.newFiles.push(file);
