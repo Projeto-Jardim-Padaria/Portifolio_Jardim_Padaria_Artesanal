@@ -206,3 +206,99 @@
     border-top: none;
     padding-top: 0;
 }
+
+/* ============================================
+   IMAGE CAROUSEL — Carrossel de fotos no modal
+   ============================================ */
+
+.img-carousel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img-carousel-track {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+.img-carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.2s ease;
+}
+
+.img-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    padding: 0;
+    color: var(--primary);
+}
+
+.img-carousel-btn:hover:not(:disabled) {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.img-carousel-prev {
+    left: 4px;
+}
+
+.img-carousel-next {
+    right: 4px;
+}
+
+.img-carousel-btn-disabled,
+.img-carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.img-carousel-indicator {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin-top: 6px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Ajuste do container de imagem para acomodar o carrossel */
+.product-image-modal {
+    flex-direction: column;
+    padding: 0;
+    overflow: visible;
+}
+
+#productImageCarousel {
+    width: 250px;
+    height: 250px;
+}
+
+@media (max-width: 768px) {
+    #productImageCarousel {
+        width: 100%;
+        height: 220px;
+    }
+}

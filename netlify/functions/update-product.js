@@ -69,8 +69,11 @@ exports.handler = async (event) => {
             updated_at: new Date().toISOString()
         };
 
-        // Se uma nova imagem foi fornecida, atualizar o campo
-        if (imagem) {
+        // Suporte a múltiplas imagens: recebe array de URLs e junta com '|'
+        // Compatível com envio de array (novo) ou string única (legado)
+        if (Array.isArray(body.image_urls) && body.image_urls.length > 0) {
+            updateData.image_url = body.image_urls.join('|');
+        } else if (imagem) {
             updateData.image_url = imagem;
         }
 

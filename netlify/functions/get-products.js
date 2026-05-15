@@ -40,22 +40,32 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const formattedProducts = (products || []).map(product => ({
-            id: product.id,
-            nome: product.name,
-            descricao: product.description,
-            preco: product.price,
-            categoria: product.category,
-            imagem: product.image_url || product.image || '/img/logos/Logo.png', 
-            dias_disponiveis: product.available_days || [],
-            is_available: product.is_available !== undefined ? product.is_available : true,
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            category: product.category,
-            available_days: product.available_days,
-            image_url: product.image_url || product.image
-        }));
+        const formattedProducts = (products || []).map(product => {
+            const rawImageUrl = product.image_url || product.image || '';
+            // Suporte a múltiplas imagens: URLs separadas por '|'
+            const imageUrls = rawImageUrl
+                ? rawImageUrl.split('|').map(u => u.trim()).filter(Boolean)
+                : [];
+            const primeiraImagem = imageUrls[0] || '/img/logos/Logo.png';
+
+            return {
+                id: product.id,
+                nome: product.name,
+                descricao: product.description,
+                preco: product.price,
+                categoria: product.category,
+                imagem: primeiraImagem,
+                image_urls: imageUrls,
+                dias_disponiveis: product.available_days || [],
+                is_available: product.is_available !== undefined ? product.is_available : true,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                category: product.category,
+                available_days: product.available_days,
+                image_url: rawImageUrl
+            };
+        });
 
         return {
             statusCode: 200,

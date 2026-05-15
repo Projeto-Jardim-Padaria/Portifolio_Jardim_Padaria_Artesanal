@@ -28,7 +28,14 @@ exports.handler = async (event, context) => {
         const price = body.preco;
         const category = body.categoria;
         const available_days = body.dias_disponiveis || [];
-        const image_url = body.imagem; // URL da imagem vinda do upload
+        // Suporte a múltiplas imagens: recebe array de URLs e junta com '|'
+        // Compatível com envio de array (novo) ou string única (legado)
+        let image_url;
+        if (Array.isArray(body.image_urls) && body.image_urls.length > 0) {
+            image_url = body.image_urls.join('|');
+        } else {
+            image_url = body.imagem || null;
+        }
 
         if (!name || !description || !price || !category) {
             return {
