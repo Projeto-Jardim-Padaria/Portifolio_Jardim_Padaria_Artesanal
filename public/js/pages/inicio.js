@@ -140,10 +140,11 @@ const InicioPage = {
     async setupFeirinhas() {
         console.log('Carregando avisos de feirinhas...');
 
-        const container = document.getElementById('cardFeirinhas');
+        // O conteúdo é injetado dentro do info-content do card
+        const content = document.getElementById('cardFeirinhasContent');
 
-        if (!container) {
-            console.log('Container #cardFeirinhas não encontrado');
+        if (!content) {
+            console.log('Container #cardFeirinhasContent não encontrado');
             return;
         }
 
@@ -152,44 +153,106 @@ const InicioPage = {
             const data = await res.json();
 
             if (!data.avisos || data.avisos.length === 0) {
-                container.innerHTML = `
-                    <h4>Avisos de Feirinha</h4>
-                    <p style="color: #999; font-size: 0.9em;">Nenhuma feirinha cadastrada no momento.</p>
-                `;
+                // Mantém o estado padrão (já está no HTML)
                 return;
             }
 
-            // Ordena os avisos por data (mais próximos primeiro)
-            const avisos = data.avisos.sort((a, b) => new Date(a.data) - new Date(b.data));
-            
-            // Exibe todos os avisos
-            let html = `<h4>Avisos de Feirinha</h4>`;
-            
-            avisos.forEach((aviso, index) => {
-                const imagemHtml = aviso.imagem ? `<img src="${aviso.imagem}" style="width: 100%; margin-bottom: 10px; border-radius: 8px;">` : '';
-                html += `
-                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
-                        ${imagemHtml}
-                        <h5 style="margin: 5px 0; color: #1C3D2D;">${aviso.titulo}</h5>
-                        <p style="margin: 3px 0; font-size: 0.9em;"><strong>📅 Data:</strong> ${aviso.data}</p>
-                        <p style="margin: 3px 0; font-size: 0.9em;"><strong>🕐 Horário:</strong> ${aviso.horario}</p>
-                        <p style="margin: 3px 0; font-size: 0.9em;"><strong>📍 Local:</strong> ${aviso.local}</p>
+            // Filtra avisos: só exibe se a data do evento for hoje ou futura.
+            // Comparação apenas por data (sem hora) — some no dia seguinte ao evento.
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            const parseDataAviso = (str) => {
+                if (!str) return null;
+                if (str.includes('/')) {
+                    const [d, m, a] = str.split('/');
+                    const dt = new Date(Number(a), Number(m) - 1, Number(d));
+                    dt.setHours(0, 0, 0, 0);
+                    return dt;
+                }
+                // Formato "YYYY-MM-DD" — sufixo T12:00 evita off-by-one de fuso horário
+                const dt = new Date(str + 'T12:00:00');
+                dt.setHours(0, 0, 0, 0);
+                return dt;
+            };
+
+            const avisosFuturos = data.avisos.filter(aviso => {
+                const dt = parseDataAviso(aviso.data);
+                return dt && dt >= hoje;
+            });
+
+            if (avisosFuturos.length === 0) {
+                // Nenhum evento futuro — mantém mensagem padrão
+                console.log('Nenhuma feirinha futura — exibindo mensagem padrão');
+                return;
+            }
+
+            // Ordena por data (mais próximas primeiro)
+            avisosFuturos.sort((a, b) => {
+                const da = parseDataAviso(a.data);
+                const db = parseDataAviso(b.data);
+                return (da ? da.getTime() : 0) - (db ? db.getTime() : 0);
+            });
+
+            // Formata data para exibição amigável
+            const formatarData = (str) => {
+                if (!str) return str;
+                const meses = ['janeiro','fevereiro','março','abril','maio','junho',
+                               'julho','agosto','setembro','outubro','novembro','dezembro'];
+                let d, m, a;
+                if (str.includes('/')) {
+                    [d, m, a] = str.split('/');
+                } else {
+                    const pts = str.split('-');
+                    a = pts[0]; m = pts[1]; d = pts[2];
+                }
+                return `${parseInt(d)} de ${meses[parseInt(m) - 1]} de ${a}`;
+            };
+
+            const eHoje = (str) => {
+                const dt = parseDataAviso(str);
+                return dt && dt.getTime() === hoje.getTime();
+            };
+
+            const googleMapsUrl = (local) => {
+                if (!local) return '';
+                return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local)}`;
+            };
+
+            // Monta os avisos dentro do info-content
+            const avisosHtml = avisosFuturos.map(aviso => {
+                const isHoje = eHoje(aviso.data);
+                const mapsUrl = googleMapsUrl(aviso.local);
+                const dataFormatada = formatarData(aviso.data);
+
+                const badgeHtml = isHoje
+                    ? `<span class="feirinha-badge-hoje">🔥 Hoje!</span> `
+                    : '';
+
+                const mapsAttrs = mapsUrl
+                    ? `style="cursor:pointer" onclick="window.open('${mapsUrl}','_blank','noopener')" title="Ver no Google Maps"`
+                    : '';
+
+                return `
+                    <div class="feirinha-aviso-item ${isHoje ? 'feirinha-aviso-hoje' : ''}" ${mapsAttrs}>
+                        <p class="feirinha-aviso-titulo">${badgeHtml}<strong>${aviso.titulo}</strong></p>
+                        <p class="feirinha-info"><strong>📅</strong> ${dataFormatada}</p>
+                        ${aviso.horario ? `<p class="feirinha-info"><strong>🕐</strong> ${aviso.horario}</p>` : ''}
+                        ${aviso.local ? `<p class="feirinha-info"><strong>📍</strong> ${aviso.local}${mapsUrl ? ' <span class="feirinha-maps-hint">↗ mapa</span>' : ''}</p>` : ''}
                     </div>
                 `;
-            });
-            
-            // Remove a última borda
-            html = html.replace(/border-bottom: 1px solid #eee;">(\s*)<\/div>\s*$/, '">$1</div>');
-            
-            container.innerHTML = html;
-            console.log(`✅ ${avisos.length} aviso(s) de feirinha carregado(s)`);
+            }).join('<hr class="feirinha-divider">');
+
+            content.innerHTML = `
+                <h4>Avisos de Feirinha 🎪</h4>
+                ${avisosHtml}
+            `;
+
+            console.log(`✅ ${avisosFuturos.length} aviso(s) de feirinha carregado(s)`);
 
         } catch (err) {
             console.error("Erro ao carregar feirinhas:", err);
-            container.innerHTML = `
-                <h4>Avisos de Feirinha</h4>
-                <p style="color: #d9534f; font-size: 0.9em;">Erro ao carregar avisos. Tente novamente mais tarde.</p>
-            `;
+            // Em caso de erro mantém o conteúdo padrão
         }
     },
     setupEventListeners() {

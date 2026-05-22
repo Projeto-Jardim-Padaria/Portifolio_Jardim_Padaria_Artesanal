@@ -2585,3 +2585,188 @@
     display: block !important;
 }
 
+
+/* =====================================================
+   QUICK STATUS SWITCHER — inline, 1 clique avança
+   ===================================================== */
+
+.qs-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border-radius: 8px;
+    overflow: visible;
+}
+
+/* Pílula do status atual — clique avança para o próximo */
+.qs-current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px 0 0 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.12s;
+    white-space: nowrap;
+    user-select: none;
+    border: none;
+    position: relative;
+}
+
+.qs-current[data-has-next="true"]:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+.qs-current[data-has-next="false"] {
+    border-radius: 8px;
+    cursor: default;
+}
+
+/* Hint do próximo status (aparece no hover) */
+.qs-next-hint {
+    display: none;
+    font-size: 0.72rem;
+    opacity: 0.85;
+    align-items: center;
+    gap: 0.2rem;
+}
+.qs-current[data-has-next="true"]:hover .qs-next-hint {
+    display: inline-flex;
+}
+
+/* Botão de expandir (chevron) */
+.qs-expand-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 100%;
+    min-height: 30px;
+    background: rgba(0,0,0,0.12);
+    border: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    color: inherit;
+    font-size: 0.65rem;
+    padding: 0;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.qs-expand-btn:hover {
+    background: rgba(0,0,0,0.22);
+}
+
+/* Cores por status — herda do status atual */
+.qs-current.status-pendente,
+.qs-current.status-pendente + .qs-expand-btn {
+    background: #FFF3E0;
+    color: #E65100;
+}
+.qs-current.status-preparando,
+.qs-current.status-preparando + .qs-expand-btn {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+.qs-current.status-pronto,
+.qs-current.status-pronto + .qs-expand-btn {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+.qs-current.status-entregue,
+.qs-current.status-entregue + .qs-expand-btn {
+    background: #1B5E20;
+    color: #fff;
+}
+.qs-current.status-cancelado,
+.qs-current.status-cancelado + .qs-expand-btn {
+    background: #FFEBEE;
+    color: #B71C1C;
+}
+
+/* Dropdown */
+.qs-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 300;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 170px;
+    overflow: hidden;
+    animation: qs-fade-in 0.15s ease;
+}
+.qs-dropdown--open {
+    display: block;
+}
+
+@keyframes qs-fade-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.qs-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: none;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+}
+.qs-option:hover {
+    background: #f1f5f9;
+}
+.qs-option--active {
+    background: #f8fafc;
+    color: #1C3D2D;
+}
+.qs-option i:first-child { width: 16px; text-align: center; }
+.qs-check {
+    margin-left: auto;
+    color: #2E7D32;
+    font-size: 0.75rem;
+}
+
+/* Estado de atualização */
+.qs-wrapper.qs-updating .qs-current {
+    opacity: 0.6;
+    pointer-events: none;
+}
+.qs-wrapper.qs-updating .qs-expand-btn {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Dentro do card — ocupa largura total */
+.order-card .qs-wrapper {
+    width: 100%;
+    justify-content: stretch;
+    margin: 0.5rem 0;
+}
+.order-card .qs-current {
+    flex: 1;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+}
+.order-card .qs-dropdown {
+    left: 0;
+    right: 0;
+    min-width: 100%;
+}
+
+/* Dentro da tabela — compacto */
+.orders-table .qs-wrapper {
+    max-width: 200px;
+}

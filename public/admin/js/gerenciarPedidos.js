@@ -1254,32 +1254,7 @@ class AdminPanel {
                 <strong class="order-value">R$ ${total.toFixed(2)}</strong>
             </td>
             <td data-label="Status">
-                <div class="quick-status-container">
-                    <span class="status-badge status-${order.status || 'pendente'}" 
-                          onclick="this.nextElementSibling.classList.toggle('active')" 
-                          style="cursor: pointer" 
-                          title="Clique para mudar o status rápido">
-                        ${this.getStatusText(order.status || 'pendente')}
-                        <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 4px; opacity: 0.7"></i>
-                    </span>
-                    <div class="quick-status-menu">
-                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'pendente')">
-                            <span class="status-dot status-pendente"></span> Pendente
-                        </div>
-                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'preparando')">
-                            <span class="status-dot status-preparando"></span> Preparando
-                        </div>
-                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'pronto')">
-                            <span class="status-dot status-pronto"></span> Pronto
-                        </div>
-                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'entregue')">
-                            <span class="status-dot status-entregue"></span> Entregue
-                        </div>
-                        <div class="quick-status-option" onclick="window.AdminPanel.quickUpdateStatus('${orderId}', 'cancelado')">
-                            <span class="status-dot status-cancelado"></span> Cancelado
-                        </div>
-                    </div>
-                </div>
+                ${this.buildStatusSwitcher(orderId, order.status || 'pendente')}
             </td>a na Loja"><i class="fas fa-store"></i> Retirada</span>' :
 	                '<span class="delivery-type" title="Entrega em Domicílio"><i class="fas fa-motorcycle"></i> Entrega</span>'}
 	            </td>
@@ -1305,11 +1280,6 @@ class AdminPanel {
 	                title="Ver página do cliente" 
 	                onclick="window.open('../order.html?orderId=${orderId}', '_blank')">
 	            <i class="fas fa-external-link-alt"></i>
-	        </button>
-	        <button class="action-btn btn-info" 
-	                title="Alterar status do pedido" 
-	                onclick="window.AdminPanel.openEditStatus('${orderId}')">
-	            <i class="fas fa-edit"></i>
 	        </button>
 	        ${order.client_phone ? `
 	        <button class="action-btn btn-success" 
@@ -2028,6 +1998,119 @@ class AdminPanel {
         }
     }
 
+    // Retorna o próximo status na sequência natural
+    getNextStatus(current) {
+        const flow = ['pendente', 'preparando', 'pronto', 'entregue'];
+        const idx = flow.indexOf(current);
+        return idx >= 0 && idx < flow.length - 1 ? flow[idx + 1] : null;
+    }
+
+    // Ícone por status
+    getStatusIcon(status) {
+        const icons = {
+            pendente:   'fas fa-clock',
+            preparando: 'fas fa-utensils',
+            pronto:     'fas fa-check-circle',
+            entregue:   'fas fa-truck',
+            cancelado:  'fas fa-times-circle'
+        };
+        return icons[status] || 'fas fa-circle';
+    }
+
+    // Renderiza o bloco de status rápido reutilizável
+    buildStatusSwitcher(orderId, currentStatus) {
+        const allStatuses = [
+            { value: 'pendente',   label: 'Pendente',   icon: 'fas fa-clock' },
+            { value: 'preparando', label: 'Preparando', icon: 'fas fa-utensils' },
+            { value: 'pronto',     label: 'Pronto',     icon: 'fas fa-check-circle' },
+            { value: 'entregue',   label: 'Entregue',   icon: 'fas fa-truck' },
+            { value: 'cancelado',  label: 'Cancelado',  icon: 'fas fa-times-circle' },
+        ];
+
+        const next = this.getNextStatus(currentStatus);
+        const nextLabel = next ? this.getStatusText(next) : null;
+        const nextIcon  = next ? this.getStatusIcon(next) : null;
+
+        const optionsHtml = allStatuses.map(s => `
+            <button class="qs-option ${s.value === currentStatus ? 'qs-option--active' : ''}"
+                    data-status="${s.value}"
+                    onclick="event.stopPropagation(); window.AdminPanel.inlineUpdateStatus('${orderId}', '${s.value}', this)">
+                <i class="${s.icon}"></i> ${s.label}
+                ${s.value === currentStatus ? '<i class="fas fa-check qs-check"></i>' : ''}
+            </button>
+        `).join('');
+
+        return `
+            <div class="qs-wrapper" data-order-id="${orderId}">
+                <!-- Pílula atual: 1 clique = avança para o próximo -->
+                <div class="qs-current status-${currentStatus}"
+                     onclick="event.stopPropagation(); ${next ? `window.AdminPanel.inlineUpdateStatus('${orderId}', '${next}', this)` : ''}"
+                     title="${next ? `Avançar para: ${nextLabel}` : 'Status final'}"
+                     data-has-next="${!!next}">
+                    <i class="${this.getStatusIcon(currentStatus)}"></i>
+                    <span>${this.getStatusText(currentStatus)}</span>
+                    ${next ? `<span class="qs-next-hint"><i class="${nextIcon}"></i> ${nextLabel}</span>` : ''}
+                </div>
+                <!-- Dropdown com todos os status -->
+                <button class="qs-expand-btn" title="Outros status"
+                        onclick="event.stopPropagation(); window.AdminPanel.toggleStatusDropdown('${orderId}')">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="qs-dropdown" id="qs-drop-${orderId}">
+                    ${optionsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    toggleStatusDropdown(orderId) {
+        const drop = document.getElementById(`qs-drop-${orderId}`);
+        if (!drop) return;
+        const isOpen = drop.classList.contains('qs-dropdown--open');
+        // Fecha todos antes
+        document.querySelectorAll('.qs-dropdown--open').forEach(d => d.classList.remove('qs-dropdown--open'));
+        if (!isOpen) drop.classList.add('qs-dropdown--open');
+    }
+
+    async inlineUpdateStatus(orderId, newStatus, triggerEl) {
+        if (!newStatus) return;
+        const order = this.orders.find(o => (o.order_id || o.id) === orderId);
+        if (!order || order.status === newStatus) {
+            document.querySelectorAll('.qs-dropdown--open').forEach(d => d.classList.remove('qs-dropdown--open'));
+            return;
+        }
+
+        // Feedback visual imediato
+        const wrapper = document.querySelector(`.qs-wrapper[data-order-id="${orderId}"]`);
+        if (wrapper) wrapper.classList.add('qs-updating');
+
+        try {
+            const apiBase = window.location.origin;
+            const response = await fetch(`${apiBase}/.netlify/functions/update-order-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, status: newStatus })
+            });
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                this.updateOrderStatusLocally(orderId, newStatus);
+                this.updateStats();
+                this.updateCharts();
+                this.displayCurrentView();
+                this.showSuccess(`✅ ${this.getStatusText(newStatus)}`);
+            } else {
+                throw new Error(result.message || 'Erro ao atualizar');
+            }
+        } catch (err) {
+            console.error('❌ Erro ao atualizar status:', err);
+            this.showError('Erro: ' + err.message);
+            if (wrapper) wrapper.classList.remove('qs-updating');
+        }
+
+        document.querySelectorAll('.qs-dropdown--open').forEach(d => d.classList.remove('qs-dropdown--open'));
+    }
+
     displayOrdersAsCards() {
         const container = document.getElementById('cardsContainer');
         if (!container) return;
@@ -2050,62 +2133,66 @@ class AdminPanel {
             const formattedDate = date.toLocaleDateString('pt-BR');
             const formattedTime = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             const total = order.total_numeric || 0;
+            const orderId = order.order_id || order.id;
             const deliveryOption = order.delivery_option || 'entrega';
             const paymentMethod = order.payment_method || 'pix';
+            const currentStatus = order.status || 'pendente';
 
             card.innerHTML = `
                 <div class="order-card-header">
-                    <div class="order-card-id">Pedido ${order.order_id || order.id}</div>
-                    <input type="checkbox" class="order-select" 
-                           data-order-id="${order.order_id || order.id}"
-                           onchange="window.AdminPanel.toggleOrderSelection('${order.order_id || order.id}', this.checked)">
+                    <div class="order-card-id">
+                        <input type="checkbox" class="order-select"
+                               data-order-id="${orderId}"
+                               onchange="window.AdminPanel.toggleOrderSelection('${orderId}', this.checked)">
+                        Pedido ${orderId}
+                    </div>
+                    <small class="order-card-time"><i class="far fa-clock"></i> ${formattedDate} ${formattedTime}</small>
                 </div>
+
                 <div class="order-card-client">
                     <div class="order-card-client-name">${order.client_name || 'Cliente'}</div>
                     <div class="order-card-client-phone">${this.formatPhone(order.client_phone)}</div>
                 </div>
+
+                <!-- STATUS RÁPIDO — centro do card -->
+                ${this.buildStatusSwitcher(orderId, currentStatus)}
+
                 <div class="order-card-details">
                     <div class="order-card-detail">
                         <i class="fas fa-money-bill"></i>
-                        R$ ${total.toFixed(2)}
+                        R$ ${total.toFixed(2).replace('.', ',')}
                     </div>
                     <div class="order-card-detail">
-                        <i class="fas fa-truck"></i>
+                        <i class="${deliveryOption === 'retirada' ? 'fas fa-store' : 'fas fa-motorcycle'}"></i>
                         ${deliveryOption === 'retirada' ? 'Retirada' : 'Entrega'}
                     </div>
                     <div class="order-card-detail">
-                        <i class="fas fa-credit-card"></i>
-                        ${paymentMethod === 'pix' ? 'PIX' :
-                    paymentMethod === 'cartao' ? 'Cartão' : 'Dinheiro'}
+                        <i class="${paymentMethod === 'pix' ? 'fas fa-qrcode' : paymentMethod === 'cartao' ? 'far fa-credit-card' : 'fas fa-money-bill-wave'}"></i>
+                        ${paymentMethod === 'pix' ? 'PIX' : paymentMethod === 'cartao' ? 'Cartão' : 'Dinheiro'}
                     </div>
                 </div>
-                <div class="order-card-status">
-                    <span class="status-badge status-${order.status || 'pendente'}">
-                        ${this.getStatusText(order.status || 'pendente')}
-                    </span>
-                </div>
-               <div class="order-card-actions">
-    <button class="action-btn btn-primary small with-text" 
-            onclick="window.AdminPanel.openOrderDetails('${order.order_id || order.id}')" title="Ver Detalhes">
-        <i class="fas fa-eye"></i> Ver
-    </button>
-    <button class="action-btn btn-info small with-text" 
-            onclick="window.AdminPanel.openEditStatus('${order.order_id || order.id}')" title="Editar Status">
-        <i class="fas fa-edit"></i> Status
-    </button>
-    <button class="action-btn btn-success small" 
-            onclick="window.open('https://api.whatsapp.com/send?phone=${order.client_phone}', '_blank')"
-            title="WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-    </button>
-</div>
-                <div class="order-card-time">
-                    <small><i class="fas fa-clock"></i> ${formattedDate} ${formattedTime}</small>
+
+                <div class="order-card-actions">
+                    <button class="action-btn btn-primary small with-text"
+                            onclick="window.AdminPanel.openOrderDetails('${orderId}')" title="Ver Detalhes">
+                        <i class="fas fa-eye"></i> Detalhes
+                    </button>
+                    ${order.client_phone ? `
+                    <button class="action-btn btn-success small"
+                            onclick="window.open('https://api.whatsapp.com/send?phone=${order.client_phone}', '_blank')"
+                            title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>` : ''}
                 </div>
             `;
 
             container.appendChild(card);
         });
+
+        // Fecha dropdowns ao clicar fora
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.qs-dropdown--open').forEach(d => d.classList.remove('qs-dropdown--open'));
+        }, { once: true });
     }
 
     createReportViewerModal() {
