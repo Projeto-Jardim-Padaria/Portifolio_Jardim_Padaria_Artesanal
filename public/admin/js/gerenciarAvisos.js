@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
     form.onsubmit = async (e) => {
         e.preventDefault();
 
-        // 🔥 PEGA APENAS O SRC DA IMAGEM
+        //  PEGA APENAS O SRC DA IMAGEM
         const imgTag = preview.querySelector("img");
         let imagemFinal = imgTag ? imgTag.src : "";
 
