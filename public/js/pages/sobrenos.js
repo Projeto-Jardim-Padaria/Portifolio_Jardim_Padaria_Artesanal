@@ -14,6 +14,7 @@ const SobreNosPage = {
         this.initializeImageCarousel();
     },
 
+    
     initializeImageCarousel() {
         if (this.carouselInterval) {
             clearInterval(this.carouselInterval);
