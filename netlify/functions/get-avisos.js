@@ -13,8 +13,8 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const supabaseUrl = process.env.SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabaseUrl = (process.env.SUPABASE_URL || '').trim();
+        const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '').trim();
 
         if (!supabaseUrl || !supabaseKey) {
             console.warn('⚠️ Supabase não configurado, retornando avisos vazios');

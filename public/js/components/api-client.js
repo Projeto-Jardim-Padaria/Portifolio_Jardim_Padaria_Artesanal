@@ -85,7 +85,7 @@ class ApiClient {
 
     async getProducts() {
         console.log(' Buscando produtos via API...');
-        return await this._makeRequest('/produtos', 'GET');
+        return await this._makeRequest('/get-products', 'GET');
     }
 
     async getOrder(orderId) {

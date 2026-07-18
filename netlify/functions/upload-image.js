@@ -1,11 +1,11 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const getSupabase = () => {
-    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseUrl = (process.env.SUPABASE_URL || '').trim();
     // No seu ambiente, a SERVICE_ROLE_KEY (que ignora RLS) está na variável SUPABASE_SERVICE_KEY
     // enquanto a SUPABASE_SERVICE_ROLE_KEY parece conter a chave anônima.
     // Vamos priorizar a SUPABASE_SERVICE_KEY para garantir que o upload funcione.
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '').trim();
     
     if (!supabaseUrl || !supabaseServiceKey) {
         throw new Error('Configurações do Supabase (URL ou Key) não encontradas no ambiente.');

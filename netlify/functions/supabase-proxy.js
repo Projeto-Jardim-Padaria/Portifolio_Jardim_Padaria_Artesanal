@@ -7,8 +7,8 @@ const { createClient } = require('@supabase/supabase-js');
 // ============================================
 
 // Tenta obter das variáveis de ambiente
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = (process.env.SUPABASE_URL || '').trim();
+const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '').trim();
 const siteUrl = process.env.SITE_URL || 'https://jardim-padaria.netlify.app';
 
 // Detecta ambiente
